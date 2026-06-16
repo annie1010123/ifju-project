@@ -64,11 +64,11 @@ function PineTree({ size = 44, delay = 0 }) {
   );
 }
 
-function TreeSVG({ size = 40, color = "#2d8a4e", delay = 0, stage = 3, fruit = false, blossom = false }) {
+function TreeSVG({ size = 40, color = "#2d8a4e", delay = 0, stage = 3, fruit = false, blossom = false, noAnim = false }) {
   const blossoms = [[24,40],[36,42],[30,33],[33,47]];
   const apples = [[22,40],[38,40],[30,32],[26,49],[36,30],[34,48],[19,35]];
   return (
-    <svg width={size} height={size} viewBox="0 0 60 70" style={{ animation: `treeGrow 0.6s ease-out ${delay}s both` }}>
+    <svg width={size} height={size} viewBox="0 0 60 70" style={{ animation: noAnim ? "none" : `treeGrow 0.6s ease-out ${delay}s both` }}>
       {stage === 1 && (
         <>
           <rect x="28.5" y="48" width="3" height="14" rx="1.5" fill="#9C7322"/>
@@ -478,11 +478,24 @@ function ScanScreen({ onDeposit, setScreen }) {
     <div style={{padding:"16px 14px 70px",textAlign:"center"}}>
       <StepBar active={2}/>
       {cat?.trees>0?(
-        <div style={{margin:"24px auto 10px",position:"relative",width:120,height:120}}>
-          <div style={{animation:"treeGrow 0.8s ease-out forwards"}}><TreeSVG size={100} color="#2d8a4e" stage={3} fruit delay={0}/></div>
-          {[0,1,2,3,4,5].map(i=>(
-            <div key={i} style={{position:"absolute",top:10+Math.sin(i*1.05)*40,left:20+Math.cos(i*1.05)*45,width:6,height:6,borderRadius:"50%",background:["#FFD700","#48b068","#87CEEB","#FFD700","#48b068","#87CEEB"][i],animation:`sparkle 1s ease-in-out ${0.2+i*0.15}s infinite`}}/>
-          ))}
+        <div style={{margin:"20px auto 6px",position:"relative",width:160,height:150,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+          {/* 擴散光圈 */}
+          <div style={{position:"absolute",bottom:24,left:"50%",width:96,height:96,marginLeft:-48,borderRadius:"50%",border:"3px solid #1D9E75",animation:"popRing 0.9s ease-out 0.15s forwards",opacity:0}}/>
+          {/* 草地 + 土堆 */}
+          <div style={{position:"absolute",bottom:22,left:"50%",width:96,height:14,marginLeft:-48,borderRadius:"50%",background:"#79BE52",animation:"soilPop 0.5s ease-out forwards"}}/>
+          <div style={{position:"absolute",bottom:16,left:"50%",width:62,height:18,marginLeft:-31,borderRadius:"50%",background:"radial-gradient(ellipse at 50% 30%,#9A7444,#6B5230)",animation:"soilPop 0.5s ease-out forwards"}}/>
+          {/* 樹從地面長出 */}
+          <div style={{position:"relative",marginBottom:18,animation:"plantGrow 0.95s cubic-bezier(.34,1.4,.5,1) forwards",transformOrigin:"bottom center"}}>
+            <TreeSVG size={108} color="#2d8a4e" stage={3} fruit noAnim/>
+          </div>
+          {/* 迸發的火花 */}
+          {[...Array(9)].map((_,i)=>{
+            const ang=(i/9)*Math.PI*2, dist=42+ (i%3)*10;
+            return <div key={i} style={{position:"absolute",bottom:70,left:"50%",width:7,height:7,marginLeft:-3.5,borderRadius:"50%",
+              background:["#FFD54A","#48b068","#7EC8F0","#F06DA6"][i%4],
+              "--bx":`${Math.cos(ang)*dist}px`,"--by":`${Math.sin(ang)*dist-10}px`,
+              animation:`burst 0.85s ease-out ${0.3+i*0.03}s forwards`,opacity:0}}/>;
+          })}
         </div>
       ):(
         <div style={{width:80,height:80,borderRadius:"50%",margin:"24px auto 10px",background:"#E1F5EE",display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -917,6 +930,10 @@ export default function App() {
       <style>{`
         @keyframes treeGrow{0%{transform:scale(0) translateY(20px);opacity:0}60%{transform:scale(1.15) translateY(-4px);opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
         @keyframes sparkle{0%,100%{opacity:0;transform:scale(0.5)}50%{opacity:1;transform:scale(1)}}
+        @keyframes plantGrow{0%{transform:scaleY(0) scaleX(0.55);opacity:0}45%{opacity:1}70%{transform:scaleY(1.12) scaleX(0.96)}85%{transform:scaleY(0.97) scaleX(1.03)}100%{transform:scaleY(1) scaleX(1);opacity:1}}
+        @keyframes popRing{0%{transform:scale(0.25);opacity:0.7}100%{transform:scale(1.6);opacity:0}}
+        @keyframes burst{0%{transform:translate(0,0) scale(0);opacity:1}70%{opacity:1}100%{transform:translate(var(--bx),var(--by)) scale(1);opacity:0}}
+        @keyframes soilPop{0%{transform:scale(0);opacity:0}40%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:1}}
       `}</style>
       <div style={{width:375,maxWidth:"100%",borderRadius:28,overflow:"hidden",border:"2px solid var(--color-border-tertiary)",position:"relative",minHeight:720,background:"var(--color-background-primary)"}}>
         <div style={{height:40,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--color-background-secondary)",borderBottom:"1px solid var(--color-border-tertiary)",fontSize:12,fontWeight:500,color:"var(--color-text-secondary)",letterSpacing:0.5}}>
