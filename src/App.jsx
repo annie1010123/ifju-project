@@ -51,14 +51,61 @@ const anomalyLog = [
   { id: "S001", name: "宜聖宿舍站", type: "維修紀錄", time: "昨天 16:20", level: "資訊", desc: "感測器校正完成，恢復正常運作" },
 ];
 
-function TreeSVG({ size = 40, color = "#2d8a4e", delay = 0 }) {
+function PineTree({ size = 44, delay = 0 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 60 70" style={{ animation: `treeGrow 0.6s ease-out ${delay}s both` }}>
-      <rect x="26" y="45" width="8" height="20" rx="2" fill="#8B6914"/>
-      <ellipse cx="30" cy="42" rx="18" ry="20" fill={color} opacity="0.85"/>
-      <ellipse cx="22" cy="38" rx="12" ry="12" fill={color} opacity="0.7"/>
-      <ellipse cx="38" cy="38" rx="12" ry="12" fill={color} opacity="0.7"/>
-      <ellipse cx="30" cy="28" rx="12" ry="14" fill={color} opacity="0.9"/>
+      <rect x="27" y="54" width="6" height="12" rx="2" fill="#8B6914"/>
+      <polygon points="30,12 45,35 15,35" fill="#2f7d4f"/>
+      <polygon points="30,24 48,47 12,47" fill="#37935c"/>
+      <polygon points="30,36 51,59 9,59" fill="#2f7d4f"/>
+      <polygon points="30,12 30,35 15,35" fill="#fff" opacity="0.12"/>
+      <circle cx="30" cy="11" r="2.4" fill="#FFD54A"/>
+    </svg>
+  );
+}
+
+function TreeSVG({ size = 40, color = "#2d8a4e", delay = 0, stage = 3, fruit = false, blossom = false }) {
+  const blossoms = [[24,40],[36,42],[30,33],[33,47]];
+  const apples = [[22,40],[38,40],[30,32],[26,49],[36,30],[34,48],[19,35]];
+  return (
+    <svg width={size} height={size} viewBox="0 0 60 70" style={{ animation: `treeGrow 0.6s ease-out ${delay}s both` }}>
+      {stage === 1 && (
+        <>
+          <rect x="28.5" y="48" width="3" height="14" rx="1.5" fill="#9C7322"/>
+          <ellipse cx="30" cy="44" rx="7" ry="8" fill={color}/>
+          <ellipse cx="26" cy="46" rx="4.5" ry="4.5" fill={color}/>
+          <ellipse cx="34" cy="46" rx="4.5" ry="4.5" fill={color}/>
+          <ellipse cx="27" cy="41" rx="3" ry="3.5" fill="#fff" opacity="0.25"/>
+        </>
+      )}
+      {stage === 2 && (
+        <>
+          <rect x="27" y="46" width="6" height="18" rx="2" fill="#8B6914"/>
+          <ellipse cx="30" cy="40" rx="14" ry="16" fill={color}/>
+          <ellipse cx="23" cy="37" rx="9" ry="9" fill={color}/>
+          <ellipse cx="37" cy="37" rx="9" ry="9" fill={color}/>
+          <ellipse cx="24" cy="33" rx="5" ry="6" fill="#fff" opacity="0.22"/>
+          <ellipse cx="37" cy="44" rx="6" ry="6" fill="#000" opacity="0.08"/>
+          {fruit && blossoms.map(([cx,cy],i)=>(
+            <g key={i}><circle cx={cx} cy={cy} r="2" fill="#F8BBD0"/><circle cx={cx} cy={cy} r="0.7" fill="#F06292"/></g>
+          ))}
+        </>
+      )}
+      {stage === 3 && (
+        <>
+          <rect x="26" y="45" width="8" height="20" rx="2.5" fill="#8B6914"/>
+          <rect x="26" y="45" width="3" height="20" rx="1.5" fill="#A0782C" opacity="0.6"/>
+          <ellipse cx="30" cy="42" rx="19" ry="21" fill={color}/>
+          <ellipse cx="21" cy="37" rx="12" ry="12" fill={color}/>
+          <ellipse cx="39" cy="37" rx="12" ry="12" fill={color}/>
+          <ellipse cx="30" cy="27" rx="12" ry="14" fill={color}/>
+          <ellipse cx="22" cy="31" rx="7" ry="8" fill="#fff" opacity="0.2"/>
+          <ellipse cx="37" cy="49" rx="9" ry="7" fill="#000" opacity="0.08"/>
+          {fruit && apples.map(([cx,cy],i)=>(
+            <g key={i}><circle cx={cx} cy={cy} r={blossom?2.2:2.6} fill={blossom?"#F06DA6":"#E23B3B"}/><circle cx={cx-0.8} cy={cy-0.8} r="0.7" fill="#fff" opacity={blossom?0.5:0.7}/></g>
+          ))}
+        </>
+      )}
     </svg>
   );
 }
@@ -330,9 +377,33 @@ function MapScreen() {
 }
 
 /* ── SCAN ── */
+function StepBar({ active }) {
+  const steps = ["掃碼","分類","完成"];
+  return (
+    <div style={{display:"flex",alignItems:"flex-start",marginBottom:18}}>
+      {steps.map((s,i)=>(
+        <div key={i} style={{display:"flex",alignItems:"flex-start",flex:i<2?1:"0 0 auto"}}>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+            <div style={{width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:600,
+              background:i<=active?"#0F6E56":"var(--color-background-secondary)",
+              color:i<=active?"#fff":"var(--color-text-tertiary)",
+              border:`1.5px solid ${i<=active?"#0F6E56":"var(--color-border-secondary)"}`}}>
+              {i<active?"✓":i+1}
+            </div>
+            <span style={{fontSize:10,color:i<=active?"#0F6E56":"var(--color-text-tertiary)"}}>{s}</span>
+          </div>
+          {i<2 && <div style={{flex:1,height:2,marginTop:10,background:i<active?"#0F6E56":"var(--color-border-tertiary)"}}/>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ScanScreen({ onDeposit, setScreen }) {
   const [step, setStep] = useState(0);
+  const [scanning, setScanning] = useState(false);
   const [cat, setCat] = useState(null);
+  const station = "學餐周邊站";
 
   const categories = [
     { id:"plastic", name:"塑膠類", desc:"寶特瓶、塑膠袋、容器", pts:5, trees:1 },
@@ -342,37 +413,40 @@ function ScanScreen({ onDeposit, setScreen }) {
     { id:"general", name:"一般垃圾",desc:"衛生紙、免洗餐具",   pts:1, trees:0 },
   ];
 
+  const handleScan = () => { setScanning(true); setTimeout(()=>{ setScanning(false); setStep(1); }, 1200); };
+
   if (step===0) return (
     <div style={{padding:"16px 14px 70px"}}>
+      <style>{`@keyframes scanLine{0%{top:10%}50%{top:86%}100%{top:10%}}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <StepBar active={0}/>
       <div style={{fontSize:16,fontWeight:500,color:"var(--color-text-primary)",marginBottom:4}}>掃碼投遞</div>
-      <div style={{fontSize:12,color:"var(--color-text-secondary)",marginBottom:16}}>對準智慧桶 QR Code 掃碼</div>
-      <div style={{height:180,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",background:"var(--color-background-secondary)",border:"2px dashed var(--color-border-secondary)",flexDirection:"column",gap:10,marginBottom:20}}>
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--color-text-tertiary)" opacity="0.4">
+      <div style={{fontSize:12,color:"var(--color-text-secondary)",marginBottom:16}}>{scanning?"掃描中，正在連接智慧桶…":"對準智慧桶 QR Code 掃碼"}</div>
+      <div style={{position:"relative",height:180,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",background:"var(--color-background-secondary)",border:`2px ${scanning?"solid #1D9E75":"dashed var(--color-border-secondary)"}`,flexDirection:"column",gap:10,marginBottom:20}}>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--color-text-tertiary)" opacity={scanning?0.25:0.4}>
           <path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M19 5h-6v6h6V5zm-5 8h1.5v1.5H14V13zm1.5 1.5H17V16h-1.5v-1.5zM17 13h1.5v1.5H17V13z"/>
         </svg>
-        <button onClick={()=>setStep(1)} style={{padding:"10px 28px",borderRadius:10,border:"none",background:"#0F6E56",color:"#E1F5EE",fontSize:14,fontWeight:500,cursor:"pointer"}}>模擬掃碼</button>
+        {scanning
+          ? <>
+              <div style={{position:"absolute",left:"10%",right:"10%",height:2,background:"#1D9E75",boxShadow:"0 0 8px #1D9E75",animation:"scanLine 1.2s ease-in-out infinite"}}/>
+              <div style={{width:22,height:22,borderRadius:"50%",border:"2.5px solid #cbe8dc",borderTopColor:"#0F6E56",animation:"spin 0.7s linear infinite"}}/>
+            </>
+          : <button onClick={handleScan} style={{padding:"10px 28px",borderRadius:10,border:"none",background:"#0F6E56",color:"#E1F5EE",fontSize:14,fontWeight:500,cursor:"pointer"}}>模擬掃碼</button>
+        }
       </div>
-      <div style={{background:"var(--color-background-secondary)",borderRadius:12,padding:14,border:"1px solid var(--color-border-tertiary)"}}>
-        <div style={{fontSize:13,fontWeight:500,color:"var(--color-text-primary)",marginBottom:8}}>分類積分一覽</div>
-        {categories.map(c=>(
-          <div key={c.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid var(--color-border-tertiary)"}}>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13,fontWeight:500,color:"var(--color-text-primary)"}}>{c.name}</div>
-              <div style={{fontSize:11,color:"var(--color-text-secondary)"}}>{c.desc}</div>
-            </div>
-            <div style={{textAlign:"right"}}>
-              <div style={{fontSize:10,color:"#085041",background:"#E1F5EE",padding:"1px 6px",borderRadius:4}}>+{c.pts}分</div>
-              {c.trees>0&&<div style={{fontSize:10,color:"#0F6E56",marginTop:2}}>+{c.trees}棵樹</div>}
-            </div>
-          </div>
-        ))}
+      <div style={{background:"#E1F5EE",borderRadius:12,padding:"12px 14px",display:"flex",gap:8,alignItems:"flex-start"}}>
+        <span style={{fontSize:15}}>💡</span>
+        <div style={{fontSize:12,color:"#085041",lineHeight:1.6}}>丟對分類最多可 <b>+6 分、種 2 棵樹</b>；感測器會自動辨識重量與分類，丟錯會被擋下喔。</div>
       </div>
     </div>
   );
 
   if (step===1) return (
     <div style={{padding:"16px 14px 70px"}}>
-      <div style={{fontSize:16,fontWeight:500,color:"var(--color-text-primary)",marginBottom:4}}>已連接：學餐周邊站</div>
+      <StepBar active={1}/>
+      <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:2}}>
+        <span style={{width:8,height:8,borderRadius:"50%",background:"#1D9E75",boxShadow:"0 0 0 3px rgba(29,158,117,0.2)"}}/>
+        <div style={{fontSize:16,fontWeight:500,color:"var(--color-text-primary)"}}>已連接：{station}</div>
+      </div>
       <div style={{fontSize:12,color:"var(--color-text-secondary)",marginBottom:16}}>選擇投遞分類</div>
       <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
         {categories.map(c=>(
@@ -382,7 +456,7 @@ function ScanScreen({ onDeposit, setScreen }) {
             borderRadius:12,cursor:"pointer",textAlign:"left",
           }}>
             <div style={{width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:10,background:"#E1F5EE"}}>
-              {c.trees>0?<TreeSVG size={26} color="#2d8a4e" delay={0}/>:
+              {c.trees>0?<TreeSVG size={26} color="#2d8a4e" stage={3} fruit delay={0}/>:
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#888"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>}
             </div>
             <div style={{flex:1}}>
@@ -396,27 +470,28 @@ function ScanScreen({ onDeposit, setScreen }) {
           </button>
         ))}
       </div>
-      <button onClick={()=>setStep(0)} style={{width:"100%",padding:"10px 0",borderRadius:10,border:"1px solid var(--color-border-secondary)",background:"var(--color-background-primary)",color:"var(--color-text-secondary)",fontSize:13,cursor:"pointer"}}>返回</button>
+      <button onClick={()=>setStep(0)} style={{width:"100%",padding:"10px 0",borderRadius:10,border:"1px solid var(--color-border-secondary)",background:"var(--color-background-primary)",color:"var(--color-text-secondary)",fontSize:13,cursor:"pointer"}}>重新掃碼</button>
     </div>
   );
 
   return (
     <div style={{padding:"16px 14px 70px",textAlign:"center"}}>
+      <StepBar active={2}/>
       {cat?.trees>0?(
-        <div style={{margin:"30px auto 10px",position:"relative",width:120,height:120}}>
-          <div style={{animation:"treeGrow 0.8s ease-out forwards"}}><TreeSVG size={100} color="#2d8a4e" delay={0}/></div>
+        <div style={{margin:"24px auto 10px",position:"relative",width:120,height:120}}>
+          <div style={{animation:"treeGrow 0.8s ease-out forwards"}}><TreeSVG size={100} color="#2d8a4e" stage={3} fruit delay={0}/></div>
           {[0,1,2,3,4,5].map(i=>(
             <div key={i} style={{position:"absolute",top:10+Math.sin(i*1.05)*40,left:20+Math.cos(i*1.05)*45,width:6,height:6,borderRadius:"50%",background:["#FFD700","#48b068","#87CEEB","#FFD700","#48b068","#87CEEB"][i],animation:`sparkle 1s ease-in-out ${0.2+i*0.15}s infinite`}}/>
           ))}
         </div>
       ):(
-        <div style={{width:80,height:80,borderRadius:"50%",margin:"30px auto 10px",background:"#E1F5EE",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <div style={{width:80,height:80,borderRadius:"50%",margin:"24px auto 10px",background:"#E1F5EE",display:"flex",alignItems:"center",justifyContent:"center"}}>
           <svg width="36" height="36" viewBox="0 0 24 24" fill="#0F6E56"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
         </div>
       )}
       <div style={{fontSize:18,fontWeight:500,color:"var(--color-text-primary)",marginBottom:4}}>投遞成功！</div>
       {cat?.trees>0&&<div style={{fontSize:15,color:"#0F6E56",fontWeight:500,marginBottom:4}}>你的森林新增了 {cat.trees} 棵樹！</div>}
-      <div style={{fontSize:13,color:"var(--color-text-secondary)",marginBottom:20}}>{cat?.name} 已投入學餐周邊站</div>
+      <div style={{fontSize:13,color:"var(--color-text-secondary)",marginBottom:20}}>{cat?.name} 已投入{station}</div>
       <div style={{display:"flex",justifyContent:"center",gap:12,marginBottom:20}}>
         {[["#E1F5EE","#085041","+"+cat?.pts,"永續積分"],["#E6F1FB","#0C447C","-0.18","kg CO2"],...(cat?.trees>0?[["#E8F5E9","#1b5e20","+"+cat?.trees,"棵樹"]]:[] )].map(([bg,c,v,l],i)=>(
           <div key={i} style={{background:bg,borderRadius:12,padding:"12px 16px",textAlign:"center"}}>
@@ -429,7 +504,7 @@ function ScanScreen({ onDeposit, setScreen }) {
         <div style={{fontSize:12,color:"var(--color-text-secondary)",lineHeight:1.6}}>自帶環保杯比回收一次性杯子減少 4 倍碳排放。下次試試源頭減量！</div>
       </div>
       <div style={{display:"flex",gap:8}}>
-        <button onClick={()=>{setStep(0);setCat(null);}} style={{flex:1,padding:"10px 0",borderRadius:10,border:"none",background:"#0F6E56",color:"#E1F5EE",fontSize:14,fontWeight:500,cursor:"pointer"}}>繼續投遞</button>
+        <button onClick={()=>{setCat(null);setStep(1);}} style={{flex:1,padding:"10px 0",borderRadius:10,border:"none",background:"#0F6E56",color:"#E1F5EE",fontSize:14,fontWeight:500,cursor:"pointer"}}>在此桶繼續投遞</button>
         <button onClick={()=>setScreen(SCREENS.FOREST)} style={{padding:"10px 16px",borderRadius:10,border:"1px solid var(--color-border-secondary)",background:"var(--color-background-primary)",color:"#0F6E56",fontSize:13,fontWeight:500,cursor:"pointer"}}>查看森林</button>
       </div>
     </div>
@@ -439,8 +514,38 @@ function ScanScreen({ onDeposit, setScreen }) {
 /* ── FOREST ── */
 function ForestScreen({ treeCount, totalCo2 }) {
   const colors = ["#2d8a4e","#3a9e5c","#1f7a3d","#48b068","#267842","#35944f"];
-  const trees = Array.from({length:treeCount},(_,i)=>({ id:i, color:colors[i%colors.length], size:36+(i*7)%10 }));
+  // 依種樹時間分成長階段：最新的 3 棵=幼苗，再 4 棵=成長中，其餘=成熟
+  const stageOf = (i) => { const fromEnd = treeCount - i; return fromEnd <= 3 ? 1 : fromEnd <= 7 ? 2 : 3; };
+  const sizeOf = (s) => s === 1 ? 28 : s === 2 ? 38 : 48;
+  const trees = Array.from({length:treeCount},(_,i)=>{ const stage = stageOf(i); return { id:i, color:colors[i%colors.length], stage, size:sizeOf(stage) }; });
+  const matureCount = trees.filter(t=>t.stage===3).length;
+  const growingCount = trees.filter(t=>t.stage===2).length;
+  const saplingCount = trees.filter(t=>t.stage===1).length;
   const next = Math.ceil(treeCount/10)*10;
+  // 等距島嶼上的植栽佈局（2.5D iso grid + 深度排序）
+  const COLS=5, ROWS=5, ISO_CX=175, ISO_TOP=92, HW=28, HV=13;
+  const isoSize = (s)=> s===1?22 : s===2?30 : 40;
+  const species = ["apple","cherry","pine"];
+  const placed = Array.from({length:Math.min(treeCount,COLS*ROWS)},(_,k)=>{
+    const gx=k%COLS, gy=Math.floor(k/COLS);
+    return { k, gx, gy, stage:stageOf(k), species:species[k%species.length],
+      px:ISO_CX+(gx-gy)*HW, py:ISO_TOP+(gx+gy)*HV, depth:gx+gy };
+  }).sort((a,b)=> a.depth-b.depth || a.gx-b.gx);
+  const renderPlant = (p)=>{
+    const sz=isoSize(p.stage), d=Math.min(p.k*0.04,0.8);
+    if (p.stage!==3) return <TreeSVG size={sz} color="#3a9e5c" stage={p.stage} fruit delay={d}/>;
+    if (p.species==="pine") return <PineTree size={sz+6} delay={d}/>;
+    if (p.species==="cherry") return <TreeSVG size={sz} color="#F4C6DD" stage={3} fruit blossom delay={d}/>;
+    return <TreeSVG size={sz} color="#2d8a4e" stage={3} fruit delay={d}/>;
+  };
+  // 最近種樹紀錄（最新在上）
+  const plantings = [
+    { date:"今天",  action:"回收塑膠類 x2", trees:2, co2:0.36, stage:1 },
+    { date:"昨天",  action:"回收寶特瓶 x3", trees:3, co2:0.54, stage:1 },
+    { date:"5/14", action:"廚餘分類投遞",   trees:1, co2:0.18, stage:2 },
+    { date:"5/12", action:"回收紙類 x5",     trees:5, co2:0.90, stage:2 },
+    { date:"5/9",  action:"回收鋁罐 x2",     trees:2, co2:0.30, stage:3 },
+  ];
   return (
     <div style={{padding:"16px 14px 70px"}}>
       <div style={{fontSize:16,fontWeight:500,color:"var(--color-text-primary)",marginBottom:2}}>我的永續森林</div>
@@ -463,11 +568,78 @@ function ForestScreen({ treeCount, totalCo2 }) {
         <div style={{fontSize:11,color:"var(--color-text-secondary)",marginTop:6}}>再種 {next-treeCount} 棵解鎖下個徽章</div>
       </div>
 
-      <div style={{background:"linear-gradient(180deg,#e3f2fd 0%,#c8e6c9 30%,#a5d6a7 60%,#81c784 100%)",borderRadius:14,padding:"16px 10px 20px",minHeight:200,border:"1px solid #a5d6a7",marginBottom:14}}>
-        <div style={{textAlign:"center",fontSize:12,fontWeight:500,color:"#1b5e20",marginBottom:10}}>輔大永續森林 — {treeCount} 棵樹</div>
-        <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:2}}>
-          {trees.map(t=><TreeSVG key={t.id} size={t.size} color={t.color} delay={Math.min(t.id*0.04,0.8)}/>)}
+      {/* 成長階段圖例 */}
+      <div style={{display:"flex",gap:6,marginBottom:10}}>
+        {[["幼苗",saplingCount,1,28],["成長中",growingCount,2,32],["成熟",matureCount,3,38]].map(([label,count,stage,boxH],i)=>(
+          <div key={i} style={{flex:1,display:"flex",alignItems:"center",gap:6,background:"var(--color-background-secondary)",borderRadius:10,padding:"8px 10px",border:"1px solid var(--color-border-tertiary)"}}>
+            <div style={{width:24,height:boxH,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+              <TreeSVG size={boxH} color="#2d8a4e" stage={stage} fruit delay={0}/>
+            </div>
+            <div>
+              <div style={{fontSize:14,fontWeight:600,color:"var(--color-text-primary)"}}>{count}</div>
+              <div style={{fontSize:10,color:"var(--color-text-secondary)"}}>{label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{position:"relative",overflow:"hidden",background:"linear-gradient(180deg,#cdeffa 0%,#dff5ef 55%,#eaf7ec 100%)",borderRadius:14,border:"1px solid #cfe6d4",marginBottom:14,paddingTop:8}}>
+        {/* 太陽 + 雲 */}
+        <div style={{position:"absolute",top:14,right:20,width:26,height:26,borderRadius:"50%",background:"radial-gradient(circle at 35% 35%,#FFE680,#FDB44B)",boxShadow:"0 0 14px rgba(253,180,75,0.5)"}}/>
+        <div style={{position:"absolute",top:22,left:24,width:30,height:9,borderRadius:9,background:"#fff",opacity:0.9}}/>
+        <div style={{position:"absolute",top:16,left:32,width:16,height:12,borderRadius:8,background:"#fff",opacity:0.9}}/>
+        {/* 標題 */}
+        <div style={{position:"relative",textAlign:"center",fontSize:12,fontWeight:600,color:"#1b5e20",zIndex:5}}>🌳 輔大永續島 — {treeCount} 棵樹</div>
+        {/* 等距漂浮島 */}
+        <div style={{position:"relative",width:"100%",aspectRatio:"350 / 250"}}>
+          <svg viewBox="0 0 350 250" style={{position:"absolute",inset:0,width:"100%",height:"100%",zIndex:0}}>
+            {/* 土壤側面 */}
+            <polygon points="38,140 175,210 175,240 38,170" fill="#7A5230"/>
+            <polygon points="312,140 175,210 175,240 312,170" fill="#5E3F25"/>
+            <polygon points="38,140 175,210 175,240 38,170" fill="#000" opacity="0.05"/>
+            {/* 草地頂面 */}
+            <polygon points="175,70 312,140 175,210 38,140" fill="#9ED66E"/>
+            <polygon points="175,70 312,140 175,210 38,140" fill="url(#g)" opacity="0.0"/>
+            <polygon points="175,70 175,210 38,140" fill="#000" opacity="0.04"/>
+            {/* 草地邊緣亮線 */}
+            <polyline points="38,140 175,70 312,140" fill="none" stroke="#B6E88A" strokeWidth="3"/>
+          </svg>
+          {/* 植栽（深度排序疊放） */}
+          {placed.map(p=>{
+            const sz=isoSize(p.stage);
+            return (
+              <div key={p.k} style={{position:"absolute",left:`${p.px/350*100}%`,top:`${p.py/250*100}%`,transform:"translate(-50%,-100%)",zIndex:10+p.depth}}>
+                <div style={{position:"relative"}}>
+                  {renderPlant(p)}
+                  <div style={{position:"absolute",bottom:3,left:"50%",transform:"translateX(-50%)",width:sz*0.55,height:sz*0.16,borderRadius:"50%",background:"rgba(0,0,0,0.16)",zIndex:-1}}/>
+                </div>
+              </div>
+            );
+          })}
         </div>
+      </div>
+
+      {/* 最近種樹時間軸 */}
+      <div style={{fontSize:14,fontWeight:500,color:"var(--color-text-primary)",marginBottom:10}}>最近種樹紀錄</div>
+      <div style={{position:"relative"}}>
+        <div style={{position:"absolute",left:13,top:6,bottom:6,width:2,background:"var(--color-border-tertiary)"}}/>
+        {plantings.map((p,i)=>(
+          <div key={i} style={{display:"flex",alignItems:"center",gap:12,marginBottom:10,position:"relative"}}>
+            <div style={{flexShrink:0,width:28,height:28,borderRadius:"50%",background:"var(--color-background-secondary)",border:"2px solid #1D9E75",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1}}>
+              <TreeSVG size={20} color="#2d8a4e" stage={p.stage} delay={0}/>
+            </div>
+            <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"space-between",background:"var(--color-background-secondary)",borderRadius:10,padding:"10px 12px",border:"1px solid var(--color-border-tertiary)"}}>
+              <div>
+                <div style={{fontSize:13,fontWeight:500,color:"var(--color-text-primary)"}}>{p.action}</div>
+                <div style={{fontSize:11,color:"var(--color-text-tertiary)"}}>{p.date} · 減碳 {p.co2.toFixed(2)} kg</div>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
+                <TreeSVG size={16} color="#48b068" stage={1} delay={0}/>
+                <span style={{fontSize:13,fontWeight:600,color:"#0F6E56"}}>+{p.trees}</span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
