@@ -30,7 +30,7 @@ const leaderboard = [
   { rank: 1, name: "陳小明", dept: "資工系 3A", trees: 142, pts: 3840, co2: 25.6 },
   { rank: 2, name: "林雅婷", dept: "護理系 2B", trees: 128, pts: 3210, co2: 22.1 },
   { rank: 3, name: "王建豪", dept: "法律系 4A", trees: 119, pts: 2980, co2: 20.8 },
-  { rank: 4, name: "你", dept: "人哲系 4A", trees: 94, pts: 2640, co2: 18.4, isMe: true },
+  { rank: 4, name: "你", dept: "企管系 4A", trees: 94, pts: 2640, co2: 18.4, isMe: true },
   { rank: 5, name: "吳雪玲", dept: "社工系 1C", trees: 88, pts: 2490, co2: 15.9 },
   { rank: 6, name: "張偉誠", dept: "神學系 2A", trees: 76, pts: 2105, co2: 13.7 },
   { rank: 7, name: "劉靜宜", dept: "心理系 3B", trees: 71, pts: 1980, co2: 12.8 },
@@ -39,7 +39,7 @@ const leaderboard = [
 const classBoard = [
   { rank: 1, name: "資工系 3A", trees: 892, pts: 24800 },
   { rank: 2, name: "護理系 2B", trees: 764, pts: 20100 },
-  { rank: 3, name: "人哲系 4A", trees: 641, pts: 17300, isMe: true },
+  { rank: 3, name: "企管系 4A", trees: 641, pts: 17300, isMe: true },
   { rank: 4, name: "法律系 4A", trees: 598, pts: 15900 },
   { rank: 5, name: "社工系 1C", trees: 521, pts: 14200 },
 ];
@@ -215,7 +215,7 @@ function HomeScreen({ setScreen, treeCount }) {
     <div style={{ padding: "16px 14px 70px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 500, color: "var(--color-text-primary)" }}>早安，史安倪</div>
+          <div style={{ fontSize: 20, fontWeight: 500, color: "var(--color-text-primary)" }}>早安，陳丹琳</div>
           <div style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>今日校園永續快報</div>
         </div>
         <button onClick={() => setScreen(SCREENS.ACCOUNT)} style={{
@@ -791,8 +791,8 @@ function AccountScreen({ setScreen, treeCount, totalCo2 }) {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
           </div>
           <div>
-            <div style={{fontSize:18,fontWeight:600,color:"#fff"}}>史安倪</div>
-            <div style={{fontSize:12,opacity:0.8}}>人生哲學系 4A · 412382042</div>
+            <div style={{fontSize:18,fontWeight:600,color:"#fff"}}>陳丹琳</div>
+            <div style={{fontSize:12,opacity:0.8}}>企業管理學系 4A · 412382042</div>
             <div style={{fontSize:11,opacity:0.65,marginTop:2}}>加入 iFJU 第 127 天</div>
           </div>
         </div>
